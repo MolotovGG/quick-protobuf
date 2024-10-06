@@ -202,12 +202,23 @@ fn key_val(input: &str) -> IResult<&str, (&str, &str)> {
     delimited(
         pair(tag("["), many0(br)),
         separated_pair(
-            word_ref,
+            key_val_option_ident,
             delimited(many0(br), tag("="), many0(br)),
             map(take_until("]"), |v: &str| v.trim()),
         ),
         tag("]"),
     )(input)
+}
+
+fn key_val_option_ident(input: &str) -> IResult<&str, &str> {
+    alt((
+        delimited(
+            tag("("),
+            preceded(opt(tag(".")), word_ref),
+            tag(")")
+        ),
+        word_ref
+    ))(input)
 }
 
 fn frequency(input: &str) -> IResult<&str, ParsingStageFrequencyToken> {
